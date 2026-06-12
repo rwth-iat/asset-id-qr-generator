@@ -5,12 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asset ID QR Generator</title>
   <link rel="stylesheet" href="style.css" />
+  <script>
+    (function () {
+      var stored = localStorage.getItem('qr-generator-theme');
+      var mode = stored || 'auto';
+      var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      var theme = mode === 'auto' ? (prefersLight ? 'light' : 'dark') : mode;
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme-mode', mode);
+    })();
+  </script>
 </head>
 <body>
   <div class="app">
     <header class="app__header">
-      <h1>Asset ID QR Generator</h1>
-      <p>Turn one or more asset IDs into styled QR codes, ready to download.</p>
+      <div class="app__brand">
+        <img class="app__logo" id="logo-img" src="logo.png" alt="IAT / RWTH Aachen University logo" />
+        <div>
+          <h1>Asset ID QR Generator</h1>
+          <p>Turn one or more asset IDs into styled QR codes, ready to download.</p>
+        </div>
+      </div>
+      <div class="theme-switch" role="group" aria-label="Color theme">
+        <button type="button" class="theme-switch__btn" data-theme-option="auto">Auto</button>
+        <button type="button" class="theme-switch__btn" data-theme-option="light">Light</button>
+        <button type="button" class="theme-switch__btn" data-theme-option="dark">Dark</button>
+      </div>
     </header>
 
     <main class="app__main">
@@ -64,7 +84,7 @@
     </main>
 
     <footer class="app__footer">
-      <p>Standalone helper application &mdash; runs independently of the rest of the stack.</p>
+      <p>The generated QR codes are Identification Links based on the DIN EN IEC 61406-1 standard.</p>
     </footer>
   </div>
 
