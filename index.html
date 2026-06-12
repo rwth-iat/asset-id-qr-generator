@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asset ID QR Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app__header">
+      <h1>Asset ID QR Generator</h1>
+      <p>Turn one or more asset IDs into styled QR codes, ready to download.</p>
+    </header>
+
+    <main class="app__main">
+      <section class="panel">
+        <label class="panel__label" for="ids">Asset ID(s)</label>
+        <textarea
+          id="ids"
+          class="panel__textarea"
+          placeholder="Enter one asset ID per line, e.g.&#10;https://example.com/ids/asset/1234&#10;https://example.com/ids/asset/5678"
+          rows="8"
+        ></textarea>
+        <p class="panel__hint" id="hint">Enter at least one asset ID to get started.</p>
+
+        <div class="panel__options">
+          <div class="option-row">
+            <label class="option-row__label" for="label-size">Label text size</label>
+            <div class="option-row__control">
+              <input type="range" id="label-size" min="10" max="24" step="1" value="13" />
+              <span id="label-size-value" class="option-row__value">13px</span>
+            </div>
+          </div>
+          <div class="option-row">
+            <label class="switch">
+              <input type="checkbox" id="label-toggle" checked />
+              <span class="switch__track"><span class="switch__thumb"></span></span>
+            </label>
+            <label class="option-row__label" for="label-toggle">Show asset ID text under QR code</label>
+          </div>
+        </div>
+
+        <div class="panel__actions">
+          <button id="action-btn" class="btn btn--primary" disabled>Generate</button>
+        </div>
+      </section>
+
+      <section class="panel panel--preview">
+        <h2>Preview</h2>
+        <div id="preview-single" class="preview-single hidden">
+          <canvas id="qr-canvas"></canvas>
+        </div>
+        <div id="preview-multi" class="preview-multi hidden">
+          <p id="multi-count"></p>
+          <p class="preview-multi__hint">
+            Click "Generate &amp; Download" to create a ZIP bundle containing a styled QR code for each ID.
+          </p>
+        </div>
+        <div id="preview-empty" class="preview-empty">
+          <p>No QR code yet.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app__footer">
+      <p>Standalone helper application &mdash; runs independently of the rest of the stack.</p>
+    </footer>
+  </div>
+
+  <script src="lib/qrcode.js"></script>
+  <script src="lib/jszip.min.js"></script>
+  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
