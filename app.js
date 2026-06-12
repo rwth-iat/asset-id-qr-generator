@@ -4,10 +4,12 @@
   var idsInput = document.getElementById('ids');
   var hint = document.getElementById('hint');
   var actionBtn = document.getElementById('action-btn');
+  var actionBtnLabel = document.getElementById('action-btn-label');
   var previewSingle = document.getElementById('preview-single');
   var previewMulti = document.getElementById('preview-multi');
   var previewEmpty = document.getElementById('preview-empty');
   var multiCount = document.getElementById('multi-count');
+  var previewThumbs = document.getElementById('preview-thumbs');
   var canvas = document.getElementById('qr-canvas');
   var labelSizeInput = document.getElementById('label-size');
   var labelSizeValue = document.getElementById('label-size-value');
@@ -16,6 +18,39 @@
   var debounceTimer = null;
   var labelFontSize = parseInt(labelSizeInput.value, 10);
   var labelEnabled = labelToggle.checked;
+
+  // Embed mode: ?id=<base64url-encoded asset id> renders just the styled
+  // QR code (frame + corner cut, no label, no surrounding UI), suitable
+  // for use in an <iframe> or similar embed.
+  var embedParam = new URLSearchParams(window.location.search).get('id');
+  var embedId = embedParam ? decodeBase64Url(embedParam) : null;
+  var isEmbed = !!embedId;
+  if (isEmbed) {
+    document.body.classList.add('embed-mode');
+    labelEnabled = false;
+    idsInput.value = embedId;
+  }
+
+  /**
+   * Decodes a base64url string (RFC 4648 §5, no padding) into a UTF-8
+   * text string. Returns null if the input isn't valid base64.
+   */
+  function decodeBase64Url(value) {
+    try {
+      var base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      var binary = atob(base64);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return new TextDecoder().decode(bytes);
+    } catch (e) {
+      return null;
+    }
+  }
 
   // Theme handling (auto / light / dark)
   var THEME_KEY = 'qr-generator-theme';
@@ -73,6 +108,7 @@
   var QUIET_ZONE_MODULES = 4; // white space between the frame and the QR code
   var CORNER_CUT_MODULES = 6; // bottom-right orientation corner cut
   var LABEL_PADDING = 12;
+  var MAX_THUMBS = 8; // number of live QR thumbnails shown in multi-mode
 
   /**
    * Draws a QR code with a thin black outer frame, a white quiet zone
@@ -254,7 +290,7 @@
       previewEmpty.classList.remove('hidden');
       hint.textContent = 'Enter at least one asset ID to get started.';
       actionBtn.disabled = true;
-      actionBtn.textContent = 'Generate';
+      actionBtnLabel.textContent = 'Generate';
       return;
     }
 
@@ -263,15 +299,50 @@
       previewSingle.classList.remove('hidden');
       hint.textContent = '1 asset ID entered.';
       actionBtn.disabled = false;
-      actionBtn.textContent = 'Download PNG';
+      actionBtnLabel.textContent = 'Download PNG';
       return;
     }
 
     multiCount.textContent = ids.length + ' asset IDs entered.';
+    renderThumbnails(ids);
     previewMulti.classList.remove('hidden');
     hint.textContent = ids.length + ' asset IDs entered.';
     actionBtn.disabled = false;
-    actionBtn.textContent = 'Generate & Download (' + ids.length + ')';
+    actionBtnLabel.textContent = 'Generate & Download (' + ids.length + ')';
+  }
+
+  /**
+   * Renders a grid of small QR previews for the first IDs, with a
+   * "+N more" tile if there are more IDs than fit.
+   */
+  function renderThumbnails(ids) {
+    previewThumbs.innerHTML = '';
+
+    var shown = ids.slice(0, MAX_THUMBS);
+    shown.forEach(function (id) {
+      var tile = document.createElement('div');
+      tile.className = 'preview-thumb';
+
+      var thumbCanvas = document.createElement('canvas');
+      drawStyledQr(thumbCanvas, id);
+      tile.appendChild(thumbCanvas);
+
+      var label = document.createElement('span');
+      label.className = 'preview-thumb__label';
+      label.textContent = id;
+      label.title = id;
+      tile.appendChild(label);
+
+      previewThumbs.appendChild(tile);
+    });
+
+    var remaining = ids.length - shown.length;
+    if (remaining > 0) {
+      var more = document.createElement('div');
+      more.className = 'preview-thumb preview-thumb--more';
+      more.textContent = '+' + remaining + ' more';
+      previewThumbs.appendChild(more);
+    }
   }
 
   function handleAction() {
@@ -288,8 +359,9 @@
     }
 
     actionBtn.disabled = true;
-    var originalLabel = actionBtn.textContent;
-    actionBtn.textContent = 'Generating…';
+    actionBtn.classList.add('is-loading');
+    var originalLabel = actionBtnLabel.textContent;
+    actionBtnLabel.textContent = 'Generating…';
 
     var zip = new JSZip();
     var usedNames = {};
@@ -326,7 +398,8 @@
       })
       .finally(function () {
         actionBtn.disabled = false;
-        actionBtn.textContent = originalLabel;
+        actionBtn.classList.remove('is-loading');
+        actionBtnLabel.textContent = originalLabel;
       });
   }
 

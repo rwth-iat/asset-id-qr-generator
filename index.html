@@ -62,7 +62,10 @@
         </div>
 
         <div class="panel__actions">
-          <button id="action-btn" class="btn btn--primary" disabled>Generate</button>
+          <button id="action-btn" class="btn btn--primary" disabled>
+            <span class="btn__spinner" aria-hidden="true"></span>
+            <span id="action-btn-label">Generate</span>
+          </button>
         </div>
       </section>
 
@@ -73,6 +76,7 @@
         </div>
         <div id="preview-multi" class="preview-multi hidden">
           <p id="multi-count"></p>
+          <div id="preview-thumbs" class="preview-thumbs"></div>
           <p class="preview-multi__hint">
             Click "Generate &amp; Download" to create a ZIP bundle containing a styled QR code for each ID.
           </p>
