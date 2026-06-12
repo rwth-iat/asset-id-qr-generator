@@ -54,8 +54,8 @@
 
   // Theme handling (auto / light / dark)
   var THEME_KEY = 'qr-generator-theme';
-  var LOGO_LIGHT = 'logo.png';
-  var LOGO_DARK = 'rwth_iat_bild_weiss_hellblau.png';
+  var LOGO_LIGHT = 'assets/logo-light.png';
+  var LOGO_DARK = 'assets/logo-dark.png';
   var logoImg = document.getElementById('logo-img');
   var themeButtons = document.querySelectorAll('.theme-switch__btn');
   var darkSchemeQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
