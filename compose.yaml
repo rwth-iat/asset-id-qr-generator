@@ -1,0 +1,5 @@
+services:
+  asset-id-qr-generator:
+    build: .
+    image: asset-id-qr-generator:latest
+    restart: unless-stopped
