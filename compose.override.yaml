@@ -1,0 +1,9 @@
+services:
+  asset-id-qr-generator:
+    container_name: asset-id-qr-generator
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
