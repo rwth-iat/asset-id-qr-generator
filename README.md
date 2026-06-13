@@ -11,9 +11,14 @@ DIN EN IEC 61406-1) into styled QR codes, ready to download.
   a ZIP
 - Styled QR codes with a thin frame, quiet zone, and orientation corner cut
 - Optional asset ID label under the QR code, with adjustable text size
+- Adjustable QR error correction level (M / Q / H, default Q — the standard
+  requires at least M)
 - Light / dark / auto theme, persisted across visits
 - Embed mode (`?id=<base64url-encoded asset id>`) for rendering a single QR
   code without surrounding UI, e.g. in an `<iframe>`
+  - `&ec=M|Q|H` sets the error correction level (defaults to Q)
+  - `&label=1` shows the asset ID label, which is hidden by default in embed
+    mode
 
 ## Running locally
 

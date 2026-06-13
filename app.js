@@ -14,20 +14,38 @@
   var labelSizeInput = document.getElementById('label-size');
   var labelSizeValue = document.getElementById('label-size-value');
   var labelToggle = document.getElementById('label-toggle');
+  var ecLevelInput = document.getElementById('ec-level');
+  var ecLevelValue = document.getElementById('ec-level-value');
+  var ecLevelHint = document.getElementById('ec-level-hint');
 
   var debounceTimer = null;
-  var labelFontSize = parseInt(labelSizeInput.value, 10);
+  var labelFontSize = parseFloat(labelSizeInput.value);
   var labelEnabled = labelToggle.checked;
 
+  // QR error correction level: M, Q (default) or H. L is not offered, as
+  // the standard requires at least M. Can be overridden via the ?ec= URL
+  // parameter, which also applies in embed mode.
+  var EC_LEVELS = ['M', 'Q', 'H'];
+  var EC_HINTS = {
+    M: 'Smaller QR codes, less resilient to damage.',
+    Q: 'Recommended for most use cases.',
+    H: 'Best for harsh environments (dirt, scratches, wear).'
+  };
+  var ecParam = (new URLSearchParams(window.location.search).get('ec') || '').toUpperCase();
+  var ecLevel = EC_LEVELS.indexOf(ecParam) !== -1 ? ecParam : 'Q';
+
   // Embed mode: ?id=<base64url-encoded asset id> renders just the styled
-  // QR code (frame + corner cut, no label, no surrounding UI), suitable
-  // for use in an <iframe> or similar embed.
+  // QR code (frame + corner cut, no surrounding UI), suitable for use in
+  // an <iframe> or similar embed. The label is hidden by default in embed
+  // mode, but can be shown with ?label=1 (or ?label=true).
   var embedParam = new URLSearchParams(window.location.search).get('id');
   var embedId = embedParam ? decodeBase64Url(embedParam) : null;
   var isEmbed = !!embedId;
+  var labelParam = new URLSearchParams(window.location.search).get('label');
+  var showLabelInEmbed = labelParam === '1' || labelParam === 'true';
   if (isEmbed) {
     document.body.classList.add('embed-mode');
-    labelEnabled = false;
+    labelEnabled = showLabelInEmbed;
     idsInput.value = embedId;
   }
 
@@ -116,7 +134,7 @@
    * corner cut, all sized in module units.
    */
   function drawStyledQr(targetCanvas, text) {
-    var qr = qrcode(0, 'H');
+    var qr = qrcode(0, ecLevel);
     qr.addData(text);
     qr.make();
 
@@ -436,7 +454,7 @@
       'Frame border: ' + FRAME_MODULES + ' module(s)',
       'Quiet zone: ' + QUIET_ZONE_MODULES + ' module(s)',
       'Corner cut: ' + CORNER_CUT_MODULES + ' module(s)',
-      'Error correction level: H',
+      'Error correction level: ' + ecLevel,
       'Label text size: ' + labelFontSize + ' px',
       'Label shown: ' + (labelEnabled ? 'yes' : 'no'),
       '',
@@ -457,14 +475,50 @@
 
   actionBtn.addEventListener('click', handleAction);
 
-  labelSizeInput.addEventListener('input', function () {
-    labelFontSize = parseInt(labelSizeInput.value, 10);
-    labelSizeValue.textContent = labelFontSize + 'px';
+  var LABEL_SIZE_MIN = parseFloat(labelSizeInput.min);
+  var LABEL_SIZE_MAX = parseFloat(labelSizeInput.max);
+
+  function setLabelFontSize(size) {
+    labelFontSize = Math.min(LABEL_SIZE_MAX, Math.max(LABEL_SIZE_MIN, size));
+    labelSizeInput.value = labelFontSize;
+    labelSizeValue.value = labelFontSize;
     updatePreview();
+  }
+
+  labelSizeInput.addEventListener('input', function () {
+    setLabelFontSize(parseFloat(labelSizeInput.value));
+  });
+
+  labelSizeValue.addEventListener('input', function () {
+    var size = parseFloat(labelSizeValue.value);
+    if (isNaN(size)) {
+      return;
+    }
+    labelFontSize = size;
+    labelSizeInput.value = Math.min(LABEL_SIZE_MAX, Math.max(LABEL_SIZE_MIN, size));
+    updatePreview();
+  });
+
+  labelSizeValue.addEventListener('blur', function () {
+    setLabelFontSize(parseFloat(labelSizeValue.value));
   });
 
   labelToggle.addEventListener('change', function () {
     labelEnabled = labelToggle.checked;
+    updatePreview();
+  });
+
+  function updateEcLevelUI() {
+    ecLevelValue.textContent = ecLevel;
+    ecLevelHint.textContent = EC_HINTS[ecLevel];
+  }
+
+  ecLevelInput.value = EC_LEVELS.indexOf(ecLevel);
+  updateEcLevelUI();
+
+  ecLevelInput.addEventListener('input', function () {
+    ecLevel = EC_LEVELS[parseInt(ecLevelInput.value, 10)];
+    updateEcLevelUI();
     updatePreview();
   });
 

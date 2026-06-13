@@ -49,7 +49,8 @@
             <label class="option-row__label" for="label-size">Label text size</label>
             <div class="option-row__control">
               <input type="range" id="label-size" min="10" max="24" step="1" value="13" />
-              <span id="label-size-value" class="option-row__value">13px</span>
+              <input type="number" id="label-size-value" class="option-row__value option-row__value--input" min="10" max="24" step="any" value="13" />
+              <span class="option-row__unit">px</span>
             </div>
           </div>
           <div class="option-row">
@@ -58,6 +59,19 @@
               <span class="switch__track"><span class="switch__thumb"></span></span>
             </label>
             <label class="option-row__label" for="label-toggle">Show asset ID text under QR code</label>
+          </div>
+          <div class="option-row option-row--column">
+            <div class="option-row__header">
+              <label class="option-row__label" for="ec-level">Error correction level</label>
+              <span id="ec-level-value" class="option-row__value">Q</span>
+            </div>
+            <input type="range" id="ec-level" class="ec-level__slider" min="0" max="2" step="1" value="1" />
+            <div class="ec-level__ticks">
+              <span>M</span>
+              <span>Q</span>
+              <span>H</span>
+            </div>
+            <p class="ec-level__hint" id="ec-level-hint"></p>
           </div>
         </div>
 
