@@ -19,6 +19,7 @@ DIN EN IEC 61406-1) into styled QR codes, ready to download.
   - `&ec=M|Q|H` sets the error correction level (defaults to Q)
   - `&label=1` shows the asset ID label, which is hidden by default in embed
     mode
+- Installable as a PWA, with offline support via a service worker
 
 ## Running locally
 
@@ -41,9 +42,20 @@ docker run -p 8080:80 asset-id-qr-generator
 ## Project structure
 
 ```
-index.html   - page markup
-style.css    - styling and theming
-app.js       - QR rendering, ZIP/PDF export, theme handling
-assets/      - logo images (light/dark)
-lib/         - vendored libraries (qrcode.js, jszip, jspdf)
+index.html           - page markup
+style.css            - styling and theming
+app.js               - QR rendering, ZIP/PDF export, theme handling
+manifest.webmanifest - PWA manifest (name, icons, theme colors)
+service-worker.js    - offline caching (network-first)
+assets/              - logo and app icons (light/dark)
+lib/                 - vendored libraries (qrcode.js, jszip, jspdf)
 ```
+
+## PWA / offline support
+
+The app registers a service worker (skipped in embed mode) that precaches
+the static assets and serves them with a network-first strategy: online
+requests always go to the network first (so updates appear immediately on
+reload), falling back to the cache when offline. `CACHE_NAME` in
+`service-worker.js` only needs bumping if files are removed or renamed, to
+drop stale entries from old caches.

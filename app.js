@@ -19,8 +19,9 @@
   var ecLevelHint = document.getElementById('ec-level-hint');
 
   var debounceTimer = null;
-  var labelFontSize = parseFloat(labelSizeInput.value);
-  var labelEnabled = labelToggle.checked;
+
+  var LABEL_SIZE_MIN = parseFloat(labelSizeInput.min);
+  var LABEL_SIZE_MAX = parseFloat(labelSizeInput.max);
 
   // QR error correction level: M, Q (default) or H. L is not offered, as
   // the standard requires at least M. Can be overridden via the ?ec= URL
@@ -31,22 +32,72 @@
     Q: 'Recommended for most use cases.',
     H: 'Best for harsh environments (dirt, scratches, wear).'
   };
-  var ecParam = (new URLSearchParams(window.location.search).get('ec') || '').toUpperCase();
-  var ecLevel = EC_LEVELS.indexOf(ecParam) !== -1 ? ecParam : 'Q';
 
   // Embed mode: ?id=<base64url-encoded asset id> renders just the styled
   // QR code (frame + corner cut, no surrounding UI), suitable for use in
   // an <iframe> or similar embed. The label is hidden by default in embed
   // mode, but can be shown with ?label=1 (or ?label=true).
-  var embedParam = new URLSearchParams(window.location.search).get('id');
+  var searchParams = new URLSearchParams(window.location.search);
+  var embedParam = searchParams.get('id');
   var embedId = embedParam ? decodeBase64Url(embedParam) : null;
   var isEmbed = !!embedId;
-  var labelParam = new URLSearchParams(window.location.search).get('label');
+  var labelParam = searchParams.get('label');
   var showLabelInEmbed = labelParam === '1' || labelParam === 'true';
+  var ecParam = (searchParams.get('ec') || '').toUpperCase();
+
+  // Persisted settings (label size/visibility, error correction level) from
+  // a previous visit. Not applied in embed mode, which is controlled
+  // entirely via URL parameters.
+  var SETTINGS_KEY = 'qr-generator-settings';
+  var storedSettings = {};
+  if (!isEmbed) {
+    try {
+      storedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {};
+    } catch (e) {
+      storedSettings = {};
+    }
+  }
+
+  function saveSettings() {
+    if (isEmbed) {
+      return;
+    }
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      labelFontSize: labelFontSize,
+      labelEnabled: labelEnabled,
+      ecLevel: ecLevel
+    }));
+  }
+
+  var labelFontSize = typeof storedSettings.labelFontSize === 'number'
+    ? Math.min(LABEL_SIZE_MAX, Math.max(LABEL_SIZE_MIN, storedSettings.labelFontSize))
+    : parseFloat(labelSizeInput.value);
+
+  var labelEnabled = typeof storedSettings.labelEnabled === 'boolean'
+    ? storedSettings.labelEnabled
+    : labelToggle.checked;
+
+  var ecLevel = EC_LEVELS.indexOf(ecParam) !== -1
+    ? ecParam
+    : (EC_LEVELS.indexOf(storedSettings.ecLevel) !== -1 ? storedSettings.ecLevel : 'Q');
+
   if (isEmbed) {
     document.body.classList.add('embed-mode');
     labelEnabled = showLabelInEmbed;
     idsInput.value = embedId;
+  }
+
+  // Sync the UI controls to the resolved initial values.
+  labelSizeInput.value = labelFontSize;
+  labelSizeValue.value = labelFontSize;
+  labelToggle.checked = labelEnabled;
+
+  // Register the service worker for offline support, except in embed mode
+  // where the page is typically loaded inside another origin's iframe.
+  if (!isEmbed && 'serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('service-worker.js');
+    });
   }
 
   /**
@@ -475,13 +526,11 @@
 
   actionBtn.addEventListener('click', handleAction);
 
-  var LABEL_SIZE_MIN = parseFloat(labelSizeInput.min);
-  var LABEL_SIZE_MAX = parseFloat(labelSizeInput.max);
-
   function setLabelFontSize(size) {
     labelFontSize = Math.min(LABEL_SIZE_MAX, Math.max(LABEL_SIZE_MIN, size));
     labelSizeInput.value = labelFontSize;
     labelSizeValue.value = labelFontSize;
+    saveSettings();
     updatePreview();
   }
 
@@ -496,6 +545,7 @@
     }
     labelFontSize = size;
     labelSizeInput.value = Math.min(LABEL_SIZE_MAX, Math.max(LABEL_SIZE_MIN, size));
+    saveSettings();
     updatePreview();
   });
 
@@ -505,6 +555,7 @@
 
   labelToggle.addEventListener('change', function () {
     labelEnabled = labelToggle.checked;
+    saveSettings();
     updatePreview();
   });
 
@@ -519,6 +570,7 @@
   ecLevelInput.addEventListener('input', function () {
     ecLevel = EC_LEVELS[parseInt(ecLevelInput.value, 10)];
     updateEcLevelUI();
+    saveSettings();
     updatePreview();
   });
 
