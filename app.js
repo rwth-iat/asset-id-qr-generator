@@ -164,6 +164,42 @@
 
   applyTheme(localStorage.getItem(THEME_KEY) || 'auto');
 
+  // Settings popover
+  var settingsToggle = document.getElementById('settings-toggle');
+  var settingsPanel = document.getElementById('settings-panel');
+
+  function closeSettings() {
+    settingsPanel.hidden = true;
+    settingsToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function openSettings() {
+    settingsPanel.hidden = false;
+    settingsToggle.setAttribute('aria-expanded', 'true');
+  }
+
+  settingsToggle.addEventListener('click', function (event) {
+    event.stopPropagation();
+    if (settingsPanel.hidden) {
+      openSettings();
+    } else {
+      closeSettings();
+    }
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!settingsPanel.hidden && !settingsPanel.contains(event.target) && event.target !== settingsToggle) {
+      closeSettings();
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !settingsPanel.hidden) {
+      closeSettings();
+      settingsToggle.focus();
+    }
+  });
+
   function getIds() {
     return idsInput.value
       .split('\n')
