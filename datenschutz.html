@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datenschutz – Asset ID QR Generator</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="assets/icon-192.png" />
+  <meta name="theme-color" content="#0f766e" />
+  <script>
+    (function () {
+      var stored = localStorage.getItem('qr-generator-theme');
+      var mode = stored || 'auto';
+      var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      var theme = mode === 'auto' ? (prefersLight ? 'light' : 'dark') : mode;
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme-mode', mode);
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="app__header">
+      <div class="app__brand">
+        <div>
+          <h1>Datenschutzerkl&auml;rung</h1>
+          <p>Informationen gem&auml;&szlig; Art. 13 DSGVO</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="app__main">
+      <section class="panel">
+        <h2>Verantwortlicher</h2>
+        <p>
+          [PLATZHALTER: Name der Einrichtung]<br />
+          Rheinisch-Westf&auml;lische Technische Hochschule Aachen (RWTH Aachen University)<br />
+          [PLATZHALTER: Institut, z. B. Institut f&uuml;r ...]<br />
+          [PLATZHALTER: Stra&szlig;e und Hausnummer]<br />
+          [PLATZHALTER: PLZ und Ort]<br />
+          E-Mail: [PLATZHALTER]
+        </p>
+
+        <h2>Datenschutzbeauftragter</h2>
+        <p>
+          Den Datenschutzbeauftragten der RWTH Aachen erreichen Sie unter:<br />
+          [PLATZHALTER: Kontaktdaten des Datenschutzbeauftragten der RWTH Aachen]
+        </p>
+
+        <h2>Funktionsweise dieser Anwendung</h2>
+        <p>
+          Diese Anwendung erzeugt QR-Codes vollst&auml;ndig lokal im Browser. Die eingegebenen
+          Asset-IDs werden <strong>nicht</strong> an einen Server &uuml;bermittelt, gespeichert oder
+          anderweitig verarbeitet. Es findet keine Auswertung oder Weitergabe der eingegebenen
+          Inhalte statt.
+        </p>
+
+        <h2>Lokale Speicherung (localStorage)</h2>
+        <p>
+          Einstellungen wie das gew&auml;hlte Farbschema, die Fehlerkorrekturstufe und die
+          Beschriftungsgr&ouml;&szlig;e werden im <code>localStorage</code> Ihres Browsers auf Ihrem
+          Ger&auml;t gespeichert, um sie bei einem erneuten Besuch wiederherzustellen. Diese Daten
+          verbleiben ausschlie&szlig;lich auf Ihrem Ger&auml;t und werden nicht an uns &uuml;bertragen.
+          Sie k&ouml;nnen diese Daten jederzeit &uuml;ber die Einstellungen Ihres Browsers l&ouml;schen.
+        </p>
+
+        <h2>Server-Logfiles</h2>
+        <p>
+          Beim Aufruf dieser Webseite verarbeitet der Webserver automatisch erzeugte Informationen,
+          die Ihr Browser &uuml;bermittelt (z. B. IP-Adresse, Datum und Uhrzeit der Anfrage,
+          aufgerufene Seite, Browsertyp). Diese Daten werden zur Gew&auml;hrleistung eines
+          st&ouml;rungsfreien Betriebs und der Sicherheit der Systeme (Art. 6 Abs. 1 lit. f DSGVO,
+          berechtigtes Interesse) tempor&auml;r in Server-Logfiles gespeichert und nicht mit anderen
+          Datenquellen zusammengef&uuml;hrt.
+        </p>
+
+        <h2>Cookies</h2>
+        <p>
+          Diese Anwendung setzt keine Cookies.
+        </p>
+
+        <h2>Ihre Rechte</h2>
+        <p>
+          Sie haben das Recht auf Auskunft, Berichtigung, L&ouml;schung oder Einschr&auml;nkung der
+          Verarbeitung Ihrer personenbezogenen Daten sowie ein Widerspruchsrecht gegen die
+          Verarbeitung und ein Recht auf Datenübertragbarkeit, soweit die jeweiligen gesetzlichen
+          Voraussetzungen vorliegen. Zudem haben Sie das Recht, sich bei einer
+          Datenschutz-Aufsichtsbeh&ouml;rde &uuml;ber die Verarbeitung Ihrer personenbezogenen Daten
+          zu beschweren.
+        </p>
+
+        <h2>Zust&auml;ndige Aufsichtsbeh&ouml;rde</h2>
+        <p>
+          Landesbeauftragte f&uuml;r Datenschutz und Informationsfreiheit Nordrhein-Westfalen (LDI NRW)
+        </p>
+      </section>
+    </main>
+
+    <footer class="app__footer">
+      <nav class="app__legal" aria-label="Legal">
+        <a href="index.html">Zur Anwendung</a>
+        <a href="impressum.html">Impressum</a>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>

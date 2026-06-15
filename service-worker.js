@@ -8,6 +8,8 @@ var CACHE_NAME = 'qr-generator-v1';
 var PRECACHE_URLS = [
   './',
   'index.html',
+  'impressum.html',
+  'datenschutz.html',
   'style.css',
   'app.js',
   'manifest.webmanifest',

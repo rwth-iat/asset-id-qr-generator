@@ -496,6 +496,27 @@ body {
   font-size: 0.8rem;
 }
 
+.app__footer p {
+  margin: 0.25rem 0;
+}
+
+.app__legal {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app__legal a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.app__legal a:hover {
+  color: var(--accent);
+}
+
 /* Embed mode (?id=<asset id>): show only the styled QR code, with no
    surrounding chrome, for use in an <iframe> or similar embed. */
 body.embed-mode {
